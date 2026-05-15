@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tafhim al-Qur'an Reader</title>
-  <meta name="description" content="A mobile-first reader for Tafhim al-Qur'an with separated surah history and inline footnotes.">
+  <title>Tafhim Reader</title>
+  <meta name="description" content="An unofficial mobile-first reader for Tafhim al-Qur'an with separated surah history and inline footnotes.">
   <link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
   <header class="topbar">
     <button class="brand-button" type="button" data-home>
-      <span class="brand-mark" aria-hidden="true">TQ</span>
+      <span class="brand-mark" aria-hidden="true">TR</span>
       <span>
-        <span class="brand-title">Tafhim al-Qur'an</span>
-        <span class="brand-subtitle">The Meaning of the Qur'an</span>
+        <span class="brand-title">Tafhim Reader</span>
+        <span class="brand-subtitle">Unofficial reading interface</span>
       </span>
     </button>
     <div class="topbar-actions">
@@ -26,7 +26,7 @@
     <section class="home-view" id="homeView">
       <div class="home-intro">
         <p class="eyebrow">Sayyid Abul Ala Maududi</p>
-        <h1>Tafhim al-Qur'an</h1>
+        <h1>Tafhim Reader</h1>
         <!-- <p class="lede">Surah introductions, scalable Arabic text, translation, and commentary notes in a quiet reading layout.</p> -->
         <section class="continue-panel" id="continuePanel" aria-labelledby="continueHeading" hidden>
           <div>
@@ -76,6 +76,14 @@
 
         <section class="history-panel" id="historyPanel" aria-labelledby="historyTab"></section>
         <section class="read-panel" id="readPanel" aria-labelledby="readTab"></section>
+
+        <section class="ayah-slider-dock" id="ayahSliderDock" aria-label="Jump to ayah" hidden>
+          <div class="ayah-slider-meta">
+            <span id="ayahSliderValue">Ayah 1</span>
+            <span id="ayahSliderMax">1 ayah</span>
+          </div>
+          <input id="ayahSlider" type="range" min="1" max="1" value="1" step="1" aria-label="Jump to ayah">
+        </section>
       </div>
     </section>
   </main>

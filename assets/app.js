@@ -463,7 +463,7 @@ async function route() {
     state.currentSurah = null;
     els.homeView.hidden = false;
     els.readerView.hidden = true;
-    document.title = "Tafhim al-Qur'an Reader";
+    document.title = "Tafhim Reader";
     renderContinueCheckpoint();
     return;
   }
@@ -487,7 +487,7 @@ async function showSurah(id, tab, options = {}) {
   els.surahSummary.textContent = "Loading the legacy text and footnotes.";
   renderMessage(els.historyPanel, "Loading history.");
   renderMessage(els.readPanel, "Loading reading.");
-  document.title = `${meta.title} | Tafhim al-Qur'an Reader`;
+  document.title = `${meta.title} | Tafhim Reader`;
   updateNavButtons(id);
 
   try {
