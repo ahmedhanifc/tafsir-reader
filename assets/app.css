@@ -1,3 +1,11 @@
+@font-face {
+  font-family: "Amiri Quran";
+  src: url("fonts/AmiriQuran-Regular.ttf") format("truetype");
+  font-display: block;
+  font-style: normal;
+  font-weight: 400;
+}
+
 :root {
   color-scheme: light;
   --paper: #f8f7f0;
@@ -530,16 +538,14 @@ body.has-ayah-jump #app {
 }
 
 .arabic-line {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 8px 10px;
   margin: 0;
   color: var(--green-deep);
-  font-family: "Scheherazade New", "Amiri", "Noto Naskh Arabic", "Geeza Pro", serif;
+  font-family: "Amiri Quran", "Noto Naskh Arabic", "Geeza Pro", serif;
   font-size: 2rem;
-  line-height: 2.15;
+  font-weight: 400;
+  line-height: 2.25;
   text-align: right;
+  word-spacing: 0.08em;
 }
 
 .arabic-ayah {
@@ -548,6 +554,7 @@ body.has-ayah-jump #app {
 
 .arabic-text {
   white-space: normal;
+  unicode-bidi: isolate;
 }
 
 .ayah-marker {
@@ -566,8 +573,40 @@ body.has-ayah-jump #app {
 }
 
 .bismillah-card .arabic-line {
-  justify-content: center;
   color: var(--garnet);
+  text-align: center;
+}
+
+.source-image-card {
+  border: 1px solid rgba(197, 138, 47, 0.34);
+  border-radius: 8px;
+  background: #fffdf8;
+  box-shadow: var(--shadow-soft);
+}
+
+.source-image-card summary {
+  padding: 10px 14px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.source-image-list {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.source-image-list img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  margin-inline: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
 }
 
 .translation-card {

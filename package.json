@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "scripts": {
+    "import:data": "node scripts/import-quran-uthmani.js",
+    "validate:data": "node scripts/validate-sources.js"
+  }
+}

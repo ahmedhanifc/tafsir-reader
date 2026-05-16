@@ -118,6 +118,8 @@ const SURAHS = [
 const BISMILLAH_TEXT = "بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ";
 const ARABIC_DIGITS = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
 const CHECKPOINT_KEY = "tafhim-reader-checkpoint-v1";
+const LEGACY_PAGE_ROOT = "Quran";
+const ORIGINAL_SOURCE_ROOT = "original/Quran";
 
 const els = {
   homeView: document.querySelector("#homeView"),
@@ -197,12 +199,12 @@ function isLocalImage(src) {
   return Boolean(src) && !/^(https?:)?\/\//i.test(src) && /\.(jpe?g|png|gif|webp)$/i.test(src);
 }
 
-function resolveAssetPath(src, surahId) {
+function resolveAssetPath(src, surahId, root = LEGACY_PAGE_ROOT) {
   if (!isLocalImage(src)) {
     return "";
   }
 
-  const parts = `Quran/${surahId}/${src}`.split("/");
+  const parts = `${root}/${surahId}/${src}`.split("/");
   const normalized = [];
 
   for (const part of parts) {
@@ -771,7 +773,7 @@ function parseLegacyPage(html, id, quranText) {
   const readingSlice = bodyChildren.slice(contentStart, stopIndex);
   const introHtml = introSlice.map((node) => convertIntroNode(node, id)).filter(Boolean);
   const chapterVerses = quranText.chapters[String(id)] || [];
-  const readingItems = readingSlice.flatMap((node) => convertReadingNode(node, id, chapterVerses));
+  const readingItems = convertReadingNodes(readingSlice, id, chapterVerses);
 
   return {
     id,
@@ -866,7 +868,45 @@ function convertIntroNode(node, surahId) {
   return "";
 }
 
-function convertReadingNode(node, surahId, chapterVerses) {
+function convertReadingNodes(nodes, surahId, chapterVerses) {
+  const items = [];
+  let pendingSourceImages = [];
+
+  nodes.forEach((node) => {
+    const sourceImages = getOriginalSourceImages(node, surahId);
+    const text = cleanText(node.textContent);
+
+    if (!text) {
+      pendingSourceImages = pendingSourceImages.concat(sourceImages);
+      return;
+    }
+
+    const nodeItems = convertReadingNode(node, surahId, chapterVerses, pendingSourceImages.concat(sourceImages));
+    if (nodeItems.length) {
+      pendingSourceImages = [];
+      items.push(...nodeItems);
+    }
+  });
+
+  return items;
+}
+
+function getOriginalSourceImages(node, surahId) {
+  return Array.from(node.querySelectorAll?.("img") || []).map((img) => {
+    const src = resolveAssetPath(img.getAttribute("src"), surahId, ORIGINAL_SOURCE_ROOT);
+    if (!src) {
+      return null;
+    }
+
+    return {
+      src,
+      width: img.getAttribute("width") || "",
+      height: img.getAttribute("height") || "",
+    };
+  }).filter(Boolean);
+}
+
+function convertReadingNode(node, surahId, chapterVerses, sourceImages = []) {
   const tag = node.tagName?.toUpperCase();
   if (!tag || tag === "SCRIPT" || tag === "STYLE") {
     return [];
@@ -887,6 +927,13 @@ function convertReadingNode(node, surahId, chapterVerses) {
       items.push({
         type: "arabic",
         html: arabicHtml,
+      });
+    }
+
+    if (sourceImages.length) {
+      items.push({
+        type: "source-image",
+        html: renderOriginalSourceImages(sourceImages, range),
       });
     }
 
@@ -964,6 +1011,27 @@ function renderArabicRange(chapterVerses, start, end) {
   `;
 }
 
+function renderOriginalSourceImages(images, range) {
+  const label = range
+    ? (range.start === range.end ? `Ayah ${range.start}` : `Ayahs ${range.start} to ${range.end}`)
+    : "source Arabic";
+  const imageHtml = images.map((image, index) => {
+    const dimensions = [
+      image.width ? ` width="${escapeHtml(image.width)}"` : "",
+      image.height ? ` height="${escapeHtml(image.height)}"` : "",
+    ].join("");
+
+    return `<img src="${escapeHtml(image.src)}"${dimensions} alt="Original EnglishTafsir Arabic image for ${escapeHtml(label)}${images.length > 1 ? `, part ${index + 1}` : ""}" loading="lazy" decoding="async">`;
+  }).join("");
+
+  return `
+    <details class="source-image-card">
+      <summary>Original Arabic image</summary>
+      <div class="source-image-list">${imageHtml}</div>
+    </details>
+  `;
+}
+
 function toArabicIndic(number) {
   return String(number).replace(/\d/g, (digit) => ARABIC_DIGITS[Number(digit)]);
 }
@@ -974,7 +1042,7 @@ function cleanLegacyClone(node, surahId, withNotes = false) {
 
   clone.querySelectorAll("img").forEach((img) => {
     const source = img.getAttribute("src");
-    const resolved = resolveAssetPath(source, surahId);
+    const resolved = resolveAssetPath(source, surahId, ORIGINAL_SOURCE_ROOT);
     if (!resolved) {
       img.remove();
       return;
